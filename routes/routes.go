@@ -34,9 +34,15 @@ func SetupRouter() *http.ServeMux {
 			return
 		}
 
-		// username := auth.GetUsernameSession(c.Value)
+		username, err := auth.GetUsernameSession(c.Value)
 
-		w.Write([]byte(c.Name))
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		w.Write([]byte("Halo " + username + ", cookie name: " + c.Name))
 	})
 
 	mux.HandleFunc("GET /clearCookie", func(w http.ResponseWriter, r *http.Request) {
@@ -54,6 +60,13 @@ func SetupRouter() *http.ServeMux {
 		}
 
 		auth.ClearSession(c.Value)
+
+		http.SetCookie(w, &http.Cookie{
+			Name:   "session_token",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1,
+		})
 
 		w.Write([]byte("Berhasil mendelete sebuah cookie"))
 	})
