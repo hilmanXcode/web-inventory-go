@@ -1,7 +1,8 @@
-package configs
+package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -38,5 +39,17 @@ func SqlQuery(query string, params ...any) (*sql.Rows, error) {
 	}
 
 	return rows, nil
+
+}
+
+func InsertQuery(query string, params ...any) {
+
+	_, err := DB.Exec(query, params...)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println("Sukses melakukan insert")
 
 }

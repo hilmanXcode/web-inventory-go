@@ -9,11 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="/assets/css/login.css">
+    <link rel="stylesheet" href="/assets/css/toast.css">
 </head>
 <body>
 
     <div class="container" id="container">
-        
+        {{ $hasData := .hasData }}
+        {{ if .hellow }}
+            <h1>{{ .hellow }}</h1>
+        {{ end }}
         <!-- FORM REGISTER (Di Kiri) -->
         <div class="form-container form-register">
             <form action="/register" method="POST" id="form1">
@@ -72,5 +76,22 @@
     </div>
 
     <script src="/assets/js/login.js"></script>
+    <script src="/assets/js/toast.js"></script>
+
+    {{ if .message }}
+        {{ range $index, $elem := .message }}
+        <script>
+            toast.error('Gagal', '{{ $elem }}')
+        </script>
+        {{ end }}
+    {{ end }}
+
+    {{ if .registerPage }}
+        <script>
+            // const container = document.getElementById('container');
+            container.classList.add('sign-up-mode');
+            // console.log(container)
+        </script>
+    {{ end }}
 </body>
 </html>

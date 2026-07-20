@@ -9,6 +9,7 @@ import (
 type validate struct {
 	fieldvalue interface{}
 	validator  string
+	inputName  string
 }
 
 func Validate(reqs any) (bool, map[string]string) {
@@ -16,9 +17,6 @@ func Validate(reqs any) (bool, map[string]string) {
 
 	t := reflect.TypeOf(reqs)
 	v := reflect.ValueOf(reqs)
-
-	// fmt.Println(t)
-	// 1. Inspect fields
 
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
@@ -51,22 +49,23 @@ func Validate(reqs any) (bool, map[string]string) {
 		validatorSlice[fieldInfo.Name] = validate{
 			fieldvalue: fieldValue.Interface(),
 			validator:  fieldInfo.Tag.Get("validator"),
+			inputName:  fieldInfo.Tag.Get("input_name"),
 		}
 
 	}
 
-	for key, val := range validatorSlice {
+	for _, val := range validatorSlice {
 		var valueString = fmt.Sprintf("%v", val.fieldvalue)
 
 		if strings.Contains(val.validator, "required") && strings.TrimSpace(valueString) == "" {
-			validatorMessage[key] = fmt.Sprintf("Field %s tidak boleh kosong", key)
+			validatorMessage[val.inputName] = fmt.Sprintf("Field %s tidak boleh kosong", val.inputName)
 		}
 
 		if strings.Contains(val.validator, "required") && strings.Contains(val.validator, "number") {
 			var valueInt = val.fieldvalue.(int)
 
 			if valueInt == 0 {
-				validatorMessage[key] = fmt.Sprintf("Field %s tidak boleh berisi angka 0", key)
+				validatorMessage[val.inputName] = fmt.Sprintf("Field %s tidak boleh berisi angka 0", val.inputName)
 			}
 		}
 	}

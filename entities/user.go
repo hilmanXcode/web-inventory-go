@@ -1,10 +1,9 @@
 package entities
 
 type User struct {
-	ID          int    `validator:"nullable,number"`
-	NamaLengkap string `validator:"required,string"`
-	Email       string `validator:"required"`
-	Password    string `validator:"required"`
-	Role        string `validator:"required"`
-	Umur        int    `validator:"required,number"`
+	ID          int    `validator:"nullable,number" input_name:"id"`
+	NamaLengkap string `validator:"required,string" input_name:"Nama Lengkap"`
+	Email       string `validator:"required" input_name:"Email"`
+	Password    string `validator:"required" input_name:"Password"`
+	Role        string `validator:"required" input_name:"Role"`
 }
