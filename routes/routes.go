@@ -11,7 +11,21 @@ func SetupRouter() *http.ServeMux {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /", handlers.HelloWorld)
+	// For handling an asset file
+	mux.Handle("GET /assets/",
+		http.StripPrefix(
+			"/assets/",
+			http.FileServer(http.Dir("static/assets")),
+		),
+	)
+
+	/* Auth Route */
+	// Login Route
+	mux.HandleFunc("GET /", handlers.LoginPage)
+	mux.HandleFunc("POST /", handlers.LoginHandler)
+
+	// Register Route
+	mux.HandleFunc("POST /register", handlers.RegisterHandler)
 
 	mux.HandleFunc("GET /setCookie", func(w http.ResponseWriter, r *http.Request) {
 		auth.SetSession("hilmanXcode", w)
@@ -34,7 +48,7 @@ func SetupRouter() *http.ServeMux {
 			return
 		}
 
-		username, err := auth.GetUsernameSession(c.Value)
+		username, err := auth.GetUsernameSession(c.Value, w)
 
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -59,14 +73,7 @@ func SetupRouter() *http.ServeMux {
 			return
 		}
 
-		auth.ClearSession(c.Value)
-
-		http.SetCookie(w, &http.Cookie{
-			Name:   "session_token",
-			Value:  "",
-			Path:   "/",
-			MaxAge: -1,
-		})
+		auth.ClearSession(c.Value, w)
 
 		w.Write([]byte("Berhasil mendelete sebuah cookie"))
 	})

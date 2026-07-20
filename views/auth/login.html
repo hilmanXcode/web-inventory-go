@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Inventaris | Login & Register</title>
+    
+    <!-- Menggunakan font Google 'Inter' agar terlihat modern dan bersih -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/assets/css/login.css">
+</head>
+<body>
+
+    <div class="container" id="container">
+        
+        <!-- FORM REGISTER (Di Kiri) -->
+        <div class="form-container form-register">
+            <form action="/register" method="POST" id="form1">
+                <h2>Buat Akun Baru</h2>
+                <span class="subtitle">Daftarkan staf Anda untuk mengelola inventaris</span>
+                <div class="input-group">
+                    <input type="text" placeholder="Nama Lengkap" name="nama_lengkap" required />
+                </div>
+                <div class="input-group">
+                    <input type="email" placeholder="Email" name="email" required />
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password" name="password" required />
+                </div>
+                <button type="submit" class="btn primary-btn">Daftar Sekarang</button>
+                <a href="#" class="mobile-switch" id="mobile-go-login">Sudah punya akun? Masuk</a>
+            </form>
+        </div>
+
+        <!-- OVERLAY / HIASAN (Animasi Kiri - Kanan) -->
+        <div class="overlay-container">
+            <!-- Hiasan Saat di Halaman Login (Posisi Kiri) -->
+            <div class="overlay-panel deco-login">
+                <h2>Selamat Datang!</h2>
+                <p>Kelola barang, pantau stok masuk/keluar, dan optimalkan sistem pergudangan Anda dengan mudah.</p>
+                <p class="small-text">Belum memiliki akun staf?</p>
+                <button class="btn outline-btn" id="btn-go-register">Daftar di sini</button>
+            </div>
+            
+            <!-- Hiasan Saat di Halaman Register (Posisi Kanan) -->
+            <div class="overlay-panel deco-register">
+                <h2>Sistem Inventaris</h2>
+                <p>Bergabunglah dengan sistem manajemen kami untuk menjaga akurasi pendataan stok gudang Anda.</p>
+                <p class="small-text">Sudah memiliki akun staf?</p>
+                <button class="btn outline-btn" id="btn-go-login">Masuk di sini</button>
+            </div>
+        </div>
+
+        <!-- FORM LOGIN (Di Kanan) -->
+        <div class="form-container form-login">
+            <form action="/" method="POST" id="form2">
+                <h2>Masuk Dashboard</h2>
+                <span class="subtitle">Silakan login untuk mengakses data stok barang</span>
+                <div class="input-group">
+                    <input type="email" placeholder="Email" name="email" required />
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password" name="password" required />
+                </div>
+                <a href="#" class="forgot-pass">Lupa password?</a>
+                <button type="submit" class="btn primary-btn">Masuk</button>
+                <a href="#" class="mobile-switch" id="mobile-go-register">Belum punya akun? Daftar</a>
+            </form>
+        </div>
+
+    </div>
+
+    <script src="/assets/js/login.js"></script>
+</body>
+</html>

@@ -43,7 +43,7 @@ func SetSession(username string, w http.ResponseWriter) {
 
 }
 
-func GetUsernameSession(cookieToken string) (string, error) {
+func GetUsernameSession(cookieToken string, w http.ResponseWriter) (string, error) {
 	mu.RLock()
 	val, exists := Session[cookieToken]
 	mu.RUnlock()
@@ -53,7 +53,7 @@ func GetUsernameSession(cookieToken string) (string, error) {
 	}
 
 	if val.IsExpired() {
-		ClearSession(cookieToken)
+		ClearSession(cookieToken, w)
 		return "", errors.New("Session sudah expire")
 	}
 
@@ -61,8 +61,16 @@ func GetUsernameSession(cookieToken string) (string, error) {
 
 }
 
-func ClearSession(cookie string) {
+func ClearSession(cookie string, w http.ResponseWriter) {
 	mu.Lock()
 	delete(Session, cookie)
 	mu.Unlock()
+
+	http.SetCookie(w, &http.Cookie{
+		Name:   "session_token",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
+	})
+
 }

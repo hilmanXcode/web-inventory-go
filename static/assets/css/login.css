@@ -1,0 +1,284 @@
+:root {
+    /* Palet warna biru modern */
+    --primary-blue: #3b82f6; 
+    --secondary-blue: #0ea5e9;
+    --text-dark: #1e293b;
+    --text-light: #64748b;
+    --bg-body: #f0f4f8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-body);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Container Utama */
+.container {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    position: relative;
+    width: 900px;
+    max-width: 95%;
+    min-height: 550px;
+    overflow: hidden;
+}
+
+/* --- STYLING FORM --- */
+.form-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 40px;
+    transition: all 0.6s ease-in-out;
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+h2 {
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: var(--text-light);
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background-color: #f8fafc;
+    font-size: 14px;
+    transition: all 0.3s;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--primary-blue);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.forgot-pass {
+    color: var(--text-light);
+    font-size: 13px;
+    text-decoration: none;
+    margin-bottom: 20px;
+    align-self: flex-end;
+    transition: 0.3s;
+}
+
+.forgot-pass:hover {
+    color: var(--primary-blue);
+}
+
+.btn {
+    padding: 15px 30px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.primary-btn {
+    background-color: var(--primary-blue);
+    color: white;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+}
+
+.primary-btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+}
+
+/* Posisi Awal Form (Login di kanan, Register disembunyikan di kiri) */
+.form-register {
+    left: 0;
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
+    transform: translateX(-20px);
+}
+
+.form-login {
+    left: 50%;
+    opacity: 1;
+    z-index: 2;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+
+/* --- STYLING OVERLAY (HIASAN) --- */
+.overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0; /* Awalnya di kiri */
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform 0.6s ease-in-out;
+    z-index: 10;
+    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    color: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.overlay-panel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.6s ease-in-out;
+}
+
+.overlay-panel h2 {
+    color: white;
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+.overlay-panel p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #e0f2fe;
+}
+
+.small-text {
+    font-size: 13px !important;
+    margin-bottom: 10px !important;
+    color: #bae6fd !important;
+}
+
+.outline-btn {
+    background-color: transparent;
+    border: 2px solid white;
+    color: white;
+    width: auto;
+    min-width: 150px;
+}
+
+.outline-btn:hover {
+    background-color: white;
+    color: var(--primary-blue);
+}
+
+/* Tampilan teks overlay awal */
+.deco-login {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.deco-register {
+    opacity: 0;
+    transform: translateX(50px);
+    pointer-events: none;
+}
+
+/* --- KELAS ANIMASI SAAT KLIK REGISTER --- */
+.container.sign-up-mode .overlay-container {
+    transform: translateX(100%); /* Pindah ke kanan */
+}
+
+.container.sign-up-mode .form-login {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(20px);
+    z-index: 1;
+}
+
+.container.sign-up-mode .form-register {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0); /* Muncul di kiri */
+    z-index: 2;
+}
+
+.container.sign-up-mode .deco-login {
+    opacity: 0;
+    transform: translateX(-50px);
+    pointer-events: none;
+}
+
+.container.sign-up-mode .deco-register {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+/* Tautan ganti halaman khusus versi HP */
+.mobile-switch {
+    display: none;
+    margin-top: 20px;
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* --- RESPONSIVE UNTUK SMARTPHONE --- */
+@media (max-width: 768px) {
+    .container {
+        min-height: 550px;
+    }
+    /* Sembunyikan hiasan di HP karena layarnya sempit */
+    .overlay-container {
+        display: none; 
+    }
+    .form-container {
+        width: 100%;
+        left: 0;
+    }
+    .form-login {
+        left: 0;
+    }
+    .container.sign-up-mode .form-login {
+        transform: translateX(-20px);
+    }
+    .mobile-switch {
+        display: block; /* Tampilkan teks switch untuk HP */
+    }
+}
