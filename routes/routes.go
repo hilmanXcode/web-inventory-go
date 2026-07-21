@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/hilmanxcode/web-inventory-go/handlers"
+	"github.com/hilmanxcode/web-inventory-go/middleware"
 	"github.com/hilmanxcode/web-inventory-go/sessions"
 )
 
@@ -26,6 +27,9 @@ func SetupRouter() *http.ServeMux {
 
 	// Register Route
 	mux.HandleFunc("POST /register", handlers.RegisterHandler)
+
+	// Dashboard Route
+	mux.HandleFunc("GET /dashboard", middleware.RequireAuth(handlers.DashboardPage))
 
 	mux.HandleFunc("GET /setCookie", func(w http.ResponseWriter, r *http.Request) {
 		sessions.SetSession(sessions.Session{

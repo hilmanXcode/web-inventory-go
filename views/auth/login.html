@@ -14,7 +14,9 @@
 <body>
 
     <div class="container" id="container">
-        
+        {{ if .errorMsgs }}
+            <h1>{{ .errorMsgs }}</h1>
+        {{ end }}
         <!-- FORM REGISTER (Di Kiri) -->
         <div class="form-container form-register">
             <form action="/register" method="POST" id="form1">

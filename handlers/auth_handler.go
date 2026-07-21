@@ -8,6 +8,7 @@ import (
 	viewsconst "github.com/hilmanxcode/web-inventory-go/const"
 	"github.com/hilmanxcode/web-inventory-go/database"
 	"github.com/hilmanxcode/web-inventory-go/entities"
+	"github.com/hilmanxcode/web-inventory-go/sessions"
 	"github.com/hilmanxcode/web-inventory-go/utils/formutil"
 	"github.com/hilmanxcode/web-inventory-go/utils/jsonutil"
 	"github.com/hilmanxcode/web-inventory-go/utils/viewsutil"
@@ -15,7 +16,34 @@ import (
 )
 
 func LoginPage(w http.ResponseWriter, r *http.Request) {
-	viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
+
+	c, err := r.Cookie("session_token")
+
+	if err != nil {
+		fmt.Println("HARUSNYA DATANYA NIL")
+		sessions.SetSession(sessions.Session{}, w)
+
+		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
+		return
+	} else {
+
+		mySession, err := sessions.GetSession(c.Value)
+
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		var data = map[string]any{
+			"errorMsgs":  mySession.ErrorMessages,
+			"successMsg": mySession.SuccessMessage,
+		}
+
+		sessions.SetSession(sessions.Session{}, w)
+
+		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)
+
+	}
+
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
