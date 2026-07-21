@@ -3,33 +3,30 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/hilmanxcode/web-inventory-go/database"
 	"github.com/hilmanxcode/web-inventory-go/routes"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	database.Connect()
+	err := godotenv.Load()
 
-	// reqs := entities.User{
-	// 	ID:          1337,
-	// 	NamaLengkap: "",
-	// 	Email:       "hilmanxcode@gmail.com",
-	// 	Password:    "TESTING",
-	// 	Role:        "Staff",
-	// }
+	if err != nil {
+		panic(err.Error())
+	}
 
-	// err, message := utils.Validate(reqs)
+	dsn := os.Getenv("DATABASE_DSN")
 
-	// if err {
-	// 	fmt.Println(message)
-	// }
+	database.Connect(dsn)
+
 	router := routes.SetupRouter()
 
 	log.Println("Server berjalan di port 8000")
 
-	err := http.ListenAndServe("0.0.0.0:8000", router)
+	err = http.ListenAndServe("0.0.0.0:8000", router)
 
 	if err != nil {
 		log.Fatal(err.Error())

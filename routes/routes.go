@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	"github.com/hilmanxcode/web-inventory-go/auth"
 	"github.com/hilmanxcode/web-inventory-go/handlers"
+	"github.com/hilmanxcode/web-inventory-go/sessions"
 )
 
 func SetupRouter() *http.ServeMux {
@@ -28,7 +28,9 @@ func SetupRouter() *http.ServeMux {
 	mux.HandleFunc("POST /register", handlers.RegisterHandler)
 
 	mux.HandleFunc("GET /setCookie", func(w http.ResponseWriter, r *http.Request) {
-		auth.SetSession("hilmanXcode", w)
+		sessions.SetSession(sessions.Session{
+			Username: "hilmanxcode",
+		}, w)
 
 		w.Write([]byte("Berhasil menset cookie"))
 	})
@@ -48,7 +50,7 @@ func SetupRouter() *http.ServeMux {
 			return
 		}
 
-		username, err := auth.GetUsernameSession(c.Value, w)
+		username, err := sessions.GetUsernameSession(c.Value, w)
 
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -73,7 +75,7 @@ func SetupRouter() *http.ServeMux {
 			return
 		}
 
-		auth.ClearSession(c.Value, w)
+		sessions.ClearSession(c.Value, w)
 
 		w.Write([]byte("Berhasil mendelete sebuah cookie"))
 	})

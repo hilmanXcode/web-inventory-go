@@ -15,8 +15,8 @@
 
     <div class="container" id="container">
         {{ $hasData := .hasData }}
-        {{ if .hellow }}
-            <h1>{{ .hellow }}</h1>
+        {{ if .sessions }}
+            <h1>{{ .sessions.OldInput.email }}</h1>
         {{ end }}
         <!-- FORM REGISTER (Di Kiri) -->
         <div class="form-container form-register">
@@ -78,20 +78,26 @@
     <script src="/assets/js/login.js"></script>
     <script src="/assets/js/toast.js"></script>
 
-    {{ if .message }}
-        {{ range $index, $elem := .message }}
-        <script>
-            toast.error('Gagal', '{{ $elem }}')
-        </script>
+    {{ if .error }}
+        {{ range $index, $elem := .error }}
+            <script>
+                toast.error('Gagal', '{{ $elem }}')
+            </script>
         {{ end }}
+    {{ end }}
+
+    {{ if .success }}
+        <script>
+            toast.success('Berhasil', '{{ .success }}')
+        </script>
     {{ end }}
 
     {{ if .registerPage }}
         <script>
-            // const container = document.getElementById('container');
             container.classList.add('sign-up-mode');
-            // console.log(container)
         </script>
     {{ end }}
+
+
 </body>
 </html>

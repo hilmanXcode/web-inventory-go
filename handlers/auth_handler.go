@@ -8,25 +8,13 @@ import (
 	constanta "github.com/hilmanxcode/web-inventory-go/const"
 	"github.com/hilmanxcode/web-inventory-go/database"
 	"github.com/hilmanxcode/web-inventory-go/entities"
+	"github.com/hilmanxcode/web-inventory-go/sessions"
 	"github.com/hilmanxcode/web-inventory-go/utils"
-	"github.com/hilmanxcode/web-inventory-go/views"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginPage(w http.ResponseWriter, r *http.Request) {
-
-	tmpl, ok := views.Cache["login"]
-
-	if !ok {
-		http.Error(w, "Template tidak ditemukan", http.StatusInternalServerError)
-		return
-	}
-
-	err := tmpl.Execute(w, nil)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	utils.ShowView(constanta.VIEWS_LOGIN, nil, w)
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +27,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+
 	var reqs = entities.User{
 		NamaLengkap: r.FormValue("nama_lengkap"),
 		Email:       r.FormValue("email"),
@@ -46,14 +35,25 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		Role:        "Staff",
 	}
 
+	myKey := sessions.SetSession(sessions.Session{
+		OldInput: map[string]string{
+			"nama_lengkap": reqs.NamaLengkap,
+			"email":        reqs.Email,
+			"password":     reqs.Password,
+		},
+	}, w)
+
 	invalid, message := utils.Validate(reqs)
 
 	if invalid {
 
 		var data = map[string]any{
-			"message":      message,
+			"error":        message,
 			"registerPage": true,
+			"sessions":     sessions.SessionData[myKey],
 		}
+
+		fmt.Println(sessions.SessionData[myKey].OldInput)
 
 		utils.ShowView(constanta.VIEWS_LOGIN, data, w)
 
@@ -71,7 +71,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		VALUES (?, ?, ?, ?)
 	`, reqs.NamaLengkap, reqs.Email, hash, reqs.Role)
 
-	var result = fmt.Sprintf("Nama Lengkap: %s\nEmail: %s\nPassword: %s", reqs.NamaLengkap, reqs.Email, hash)
+	var data = map[string]any{
+		"success": "Berhasil register akun",
+	}
 
-	w.Write([]byte(result))
+	utils.ShowView(constanta.VIEWS_LOGIN, data, w)
 }

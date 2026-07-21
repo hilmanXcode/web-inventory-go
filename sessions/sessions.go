@@ -1,4 +1,4 @@
-package auth
+package sessions
 
 import (
 	"errors"
@@ -10,27 +10,34 @@ import (
 )
 
 var (
-	Session = map[string]session{}
-	mu      sync.RWMutex
+	SessionData = map[string]Session{}
+	mu          sync.RWMutex
 )
 
-type session struct {
-	Username string
-	Expiry   time.Time
+type Session struct {
+	Key            string
+	Username       string
+	SuccessMessage string
+	ErrorMessages  []string
+	OldInput       map[string]string
+	Expiry         time.Time
 }
 
-func (s session) IsExpired() bool {
+func (s Session) IsExpired() bool {
 	return s.Expiry.Before(time.Now())
 }
 
-func SetSession(username string, w http.ResponseWriter) {
+func SetSession(s Session, w http.ResponseWriter) string {
 	sessionToken := uuid.NewString()
 	expiresAt := time.Now().Add(120 * time.Second)
 
 	mu.Lock()
-	Session[sessionToken] = session{
-		Username: username,
-		Expiry:   expiresAt,
+	SessionData[sessionToken] = Session{
+		Key:            sessionToken,
+		Username:       s.Username,
+		SuccessMessage: s.SuccessMessage,
+		ErrorMessages:  s.ErrorMessages,
+		Expiry:         expiresAt,
 	}
 	mu.Unlock()
 
@@ -41,11 +48,13 @@ func SetSession(username string, w http.ResponseWriter) {
 		Path:    "/",
 	})
 
+	return sessionToken
+
 }
 
 func GetUsernameSession(cookieToken string, w http.ResponseWriter) (string, error) {
 	mu.RLock()
-	val, exists := Session[cookieToken]
+	val, exists := SessionData[cookieToken]
 	mu.RUnlock()
 
 	if !exists {
@@ -63,7 +72,7 @@ func GetUsernameSession(cookieToken string, w http.ResponseWriter) (string, erro
 
 func ClearSession(cookie string, w http.ResponseWriter) {
 	mu.Lock()
-	delete(Session, cookie)
+	delete(SessionData, cookie)
 	mu.Unlock()
 
 	http.SetCookie(w, &http.Cookie{

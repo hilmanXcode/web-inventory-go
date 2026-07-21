@@ -10,9 +10,7 @@ import (
 
 var DB *sql.DB
 
-func Connect() {
-
-	var dsn = "manz:supersecretpassword@tcp(127.0.0.1:3306)/db_inventory"
+func Connect(dsn string) {
 
 	var err error
 	DB, err = sql.Open("mysql", dsn)
