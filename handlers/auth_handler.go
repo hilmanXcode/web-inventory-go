@@ -5,15 +5,17 @@ import (
 	"log"
 	"net/http"
 
-	constanta "github.com/hilmanxcode/web-inventory-go/const"
+	viewsconst "github.com/hilmanxcode/web-inventory-go/const"
 	"github.com/hilmanxcode/web-inventory-go/database"
 	"github.com/hilmanxcode/web-inventory-go/entities"
-	"github.com/hilmanxcode/web-inventory-go/utils"
+	"github.com/hilmanxcode/web-inventory-go/utils/formutil"
+	"github.com/hilmanxcode/web-inventory-go/utils/jsonutil"
+	"github.com/hilmanxcode/web-inventory-go/utils/viewsutil"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginPage(w http.ResponseWriter, r *http.Request) {
-	utils.ShowView(constanta.VIEWS_LOGIN, nil, w)
+	viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,11 +38,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	var errors map[string]string
 
-	invalid, message := utils.Validate(reqs)
+	invalid, message := formutil.Validate(reqs, r)
 
 	if invalid {
 
-		jsonMessage := utils.MapStringToJson(message, w)
+		jsonMessage := jsonutil.MapStringToJson(message, w)
 
 		var data = map[string]any{
 			"errors":       string(jsonMessage),
@@ -51,7 +53,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		utils.ShowView(constanta.VIEWS_LOGIN, data, w)
+		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)
 
 		return
 	}
@@ -78,12 +80,12 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	errorMsgs := utils.MapStringToJson(errors, w)
+	errorMsgs := jsonutil.MapStringToJson(errors, w)
 
 	var data = map[string]any{
 		"success": successMsg,
 		"errors":  string(errorMsgs),
 	}
 
-	utils.ShowView(constanta.VIEWS_LOGIN, data, w)
+	viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)
 }

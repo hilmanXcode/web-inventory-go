@@ -22,16 +22,19 @@
                 <span class="subtitle">Daftarkan staf Anda untuk mengelola inventaris</span>
                 <div class="input-group">
                     <input type="text" placeholder="Nama Lengkap" name="nama_lengkap" required
-                    value="{{ .sessions.OldInput.nama_lengkap }}"
+                    value="{{ .oldInput.nama_lengkap }}"
                     />
                 </div>
                 <div class="input-group">
                     <input type="email" placeholder="Email" name="email" required
-                    value="{{ .sessions.OldInput.email }}"
+                    value="{{ .oldInput.email }}"
                     />
                 </div>
                 <div class="input-group">
                     <input type="password" placeholder="Password" name="password" required/>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Confirm Password" name="confirm_password" required/>
                 </div>
                 <button type="submit" class="btn primary-btn">Daftar Sekarang</button>
                 <a href="#" class="mobile-switch" id="mobile-go-login">Sudah punya akun? Masuk</a>
