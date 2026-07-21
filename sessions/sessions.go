@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	SessionData = map[string]Session{}
+	sessionData = map[string]Session{}
 	mu          sync.RWMutex
 )
 
@@ -32,7 +32,7 @@ func SetSession(s Session, w http.ResponseWriter) string {
 	expiresAt := time.Now().Add(120 * time.Second)
 
 	mu.Lock()
-	SessionData[sessionToken] = Session{
+	sessionData[sessionToken] = Session{
 		Key:            sessionToken,
 		Username:       s.Username,
 		SuccessMessage: s.SuccessMessage,
@@ -59,7 +59,7 @@ func GetSession(key string) (Session, error) {
 	mu.RLock()
 	defer mu.RUnlock()
 
-	val, exists := SessionData[key]
+	val, exists := sessionData[key]
 
 	if !exists {
 		return Session{}, errors.New("Session tidak ditemukan")
@@ -70,7 +70,7 @@ func GetSession(key string) (Session, error) {
 
 func GetUsernameSession(cookieToken string, w http.ResponseWriter) (string, error) {
 	mu.RLock()
-	val, exists := SessionData[cookieToken]
+	val, exists := sessionData[cookieToken]
 	mu.RUnlock()
 
 	if !exists {
@@ -107,7 +107,7 @@ func GetAndClearFlash(r *http.Request) (string, []string) {
 
 	val.SuccessMessage = ""
 	val.ErrorMessages = nil
-	SessionData[cookie.Value] = val
+	sessionData[cookie.Value] = val
 
 	return success, errors
 
@@ -117,9 +117,9 @@ func CleanupRoutine() {
 	for {
 		time.Sleep(1 * time.Minute)
 		mu.Lock()
-		for key, session := range SessionData {
+		for key, session := range sessionData {
 			if session.IsExpired() {
-				delete(SessionData, key)
+				delete(sessionData, key)
 			}
 		}
 		mu.Unlock()
@@ -128,7 +128,7 @@ func CleanupRoutine() {
 
 func ClearSession(cookie string, w http.ResponseWriter) {
 	mu.Lock()
-	delete(SessionData, cookie)
+	delete(sessionData, cookie)
 	mu.Unlock()
 
 	http.SetCookie(w, &http.Cookie{
