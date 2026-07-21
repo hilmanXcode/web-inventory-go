@@ -29,7 +29,7 @@ func (s Session) IsExpired() bool {
 
 func SetSession(s Session, w http.ResponseWriter) string {
 	sessionToken := uuid.NewString()
-	expiresAt := time.Now().Add(120 * time.Hour)
+	expiresAt := time.Now().Add(120 * time.Second)
 
 	mu.Lock()
 	sessionData[sessionToken] = Session{
@@ -86,34 +86,23 @@ func GetUsernameSession(cookieToken string, w http.ResponseWriter) (string, erro
 
 }
 
-// func SetFlashSession(success string, errors []string, r *http.Request, w http.ResponseWriter) {
+func UpdateSession(key string, s Session) error {
+	mu.Lock()
+	defer mu.Unlock()
 
-// 	var key string
-// 	cookie, err := r.Cookie("session_token")
+	existing, exists := sessionData[key]
+	if !exists {
+		return errors.New("session tidak ditemukan")
+	}
 
-// 	if err != nil {
-// 		key = SetSession(Session{
-// 			Username:       "",
-// 			SuccessMessage: "",
-// 			ErrorMessages:  nil,
-// 		}, w, "")
-// 	}
+	s.Key = key
+	if s.Expiry.IsZero() {
+		s.Expiry = existing.Expiry
+	}
+	sessionData[key] = s
 
-// 	mu.Lock()
-// 	defer mu.Unlock()
-
-// 	val, err := GetSession(key)
-
-// 	if err != nil {
-// 		log.Fatal(err.Error())
-// 	}
-
-// 	val.SuccessMessage = success
-// 	val.ErrorMessages = errors
-
-// 	sessionData[cookie.Value] = val
-
-// }
+	return nil
+}
 
 func GetAndClearFlash(r *http.Request) (string, []string, bool) {
 	cookie, err := r.Cookie("session_token")
@@ -125,9 +114,9 @@ func GetAndClearFlash(r *http.Request) (string, []string, bool) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	val, err := GetSession(cookie.Value)
+	val, exists := sessionData[cookie.Value]
 
-	if err != nil {
+	if !exists {
 		return "", nil, true
 	}
 

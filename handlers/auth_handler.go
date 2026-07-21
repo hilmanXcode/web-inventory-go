@@ -30,7 +30,11 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 		mySession, err := sessions.GetSession(c.Value)
 
 		if err != nil {
-			log.Fatal(err.Error())
+			// Session expired atau tidak valid, buat baru
+			sessions.ClearSession(c.Value, w)
+			sessions.SetSession(sessions.Session{}, w)
+			viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
+			return
 		}
 
 		var data = map[string]any{
