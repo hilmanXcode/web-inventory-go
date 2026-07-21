@@ -2,8 +2,8 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -40,14 +40,23 @@ func SqlQuery(query string, params ...any) (*sql.Rows, error) {
 
 }
 
-func InsertQuery(query string, params ...any) {
+func InsertQuery(query string, params ...any) (string, error, bool) {
 
 	_, err := DB.Exec(query, params...)
 
 	if err != nil {
-		panic(err.Error())
+		// panic(err.Error())
+		var error = string([]byte(err.Error()))
+		var isDuplicate = strings.Contains(error, "Duplicate")
+
+		if isDuplicate {
+			return "", nil, true
+		}
+
+		return "", err, false
+
 	}
 
-	fmt.Println("Sukses melakukan insert")
+	return "Berhasil menambahkan user", nil, false
 
 }

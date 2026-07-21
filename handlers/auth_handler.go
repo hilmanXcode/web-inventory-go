@@ -8,7 +8,6 @@ import (
 	constanta "github.com/hilmanxcode/web-inventory-go/const"
 	"github.com/hilmanxcode/web-inventory-go/database"
 	"github.com/hilmanxcode/web-inventory-go/entities"
-	"github.com/hilmanxcode/web-inventory-go/sessions"
 	"github.com/hilmanxcode/web-inventory-go/utils"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -35,25 +34,22 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		Role:        "Staff",
 	}
 
-	myKey := sessions.SetSession(sessions.Session{
-		OldInput: map[string]string{
-			"nama_lengkap": reqs.NamaLengkap,
-			"email":        reqs.Email,
-			"password":     reqs.Password,
-		},
-	}, w)
+	var errors map[string]string
 
 	invalid, message := utils.Validate(reqs)
 
 	if invalid {
 
-		var data = map[string]any{
-			"error":        message,
-			"registerPage": true,
-			"sessions":     sessions.SessionData[myKey],
-		}
+		jsonMessage := utils.MapStringToJson(message, w)
 
-		fmt.Println(sessions.SessionData[myKey].OldInput)
+		var data = map[string]any{
+			"errors":       string(jsonMessage),
+			"registerPage": true,
+			"oldInput": map[string]string{
+				"nama_lengkap": reqs.NamaLengkap,
+				"email":        reqs.Email,
+			},
+		}
 
 		utils.ShowView(constanta.VIEWS_LOGIN, data, w)
 
@@ -66,13 +62,27 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		log.Panic(err.Error())
 	}
 
-	database.InsertQuery(`
+	successMsg, err, duplicate := database.InsertQuery(`
 		INSERT INTO users (nama_lengkap, email, password, role)
 		VALUES (?, ?, ?, ?)
 	`, reqs.NamaLengkap, reqs.Email, hash, reqs.Role)
 
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if duplicate {
+		errors = map[string]string{
+			"duplicate_email": "Email telah digunakan",
+		}
+	}
+
+	errorMsgs := utils.MapStringToJson(errors, w)
+
 	var data = map[string]any{
-		"success": "Berhasil register akun",
+		"success": successMsg,
+		"errors":  string(errorMsgs),
 	}
 
 	utils.ShowView(constanta.VIEWS_LOGIN, data, w)
