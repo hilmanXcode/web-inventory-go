@@ -38,7 +38,9 @@ func main() {
 
 	log.Println("Server berjalan di port 443")
 
-	// err = http.ListenAndServe("0.0.0.0:443", "server.crt",)
+	// without http
+	// err = http.ListenAndServe("0.0.0.0:8000", router)
+	// with https
 	err = http.ListenAndServeTLS("0.0.0.0:443", "server.crt", "server.key", router)
 
 	if err != nil {

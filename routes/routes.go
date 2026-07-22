@@ -22,7 +22,7 @@ func SetupRouter() *http.ServeMux {
 	/* Auth Route */
 	// Login Route
 	mux.HandleFunc("GET /", middleware.GuestOnly(handlers.LoginPage))
-	mux.HandleFunc("POST /", handlers.LoginHandler)
+	mux.HandleFunc("POST /", middleware.GuestOnly(handlers.LoginHandler))
 
 	// Register Route
 	mux.HandleFunc("POST /register", handlers.RegisterHandler)

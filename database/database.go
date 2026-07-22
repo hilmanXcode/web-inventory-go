@@ -27,9 +27,16 @@ func Connect(dsn string) {
 
 }
 
+func GetSingleData(query string, params ...any) *sql.Row {
+
+	row := DB.QueryRow(query, params...)
+
+	return row
+
+}
+
 func SqlQuery(query string, params ...any) (*sql.Rows, error) {
 
-	// if params != nil
 	rows, err := DB.Query(query, params...)
 
 	if err != nil {

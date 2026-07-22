@@ -5,9 +5,11 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	viewsconst "github.com/hilmanxcode/web-inventory-go/const"
 	"github.com/hilmanxcode/web-inventory-go/database"
 	"github.com/hilmanxcode/web-inventory-go/entities"
+	userModel "github.com/hilmanxcode/web-inventory-go/models"
 	"github.com/hilmanxcode/web-inventory-go/sessions"
 	"github.com/hilmanxcode/web-inventory-go/utils/formutil"
 	"github.com/hilmanxcode/web-inventory-go/utils/jsonutil"
@@ -21,17 +23,31 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		sessions.SetSession(sessions.Session{}, w)
-
+		fmt.Println("MASUK SINI DLU")
+		sessions.SetSession(sessions.Session{
+			Key: uuid.NewString(),
+		}, w)
 		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
 		return
 	} else {
 
 		successMsg, errorMsgs, err := sessions.GetAndClearFlash(r)
 
+		_, err = sessions.GetSession(c.Value)
+
+		if err != nil {
+
+			sessions.SetSession(sessions.Session{
+				Key: uuid.NewString(),
+			}, w)
+
+		}
+
 		if err != nil {
 			sessions.ClearSession(c.Value, w)
-			sessions.SetSession(sessions.Session{}, w)
+			sessions.SetSession(sessions.Session{
+				Key: uuid.NewString(),
+			}, w)
 			viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
 			return
 		}
@@ -48,17 +64,97 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	var email = r.FormValue("email")
-	var password = r.FormValue("password")
 
-	var result = fmt.Sprintf("Email: %s\nPassword: %s", email, password)
+	var reqs = entities.UserLogin{
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
+	}
 
-	w.Write([]byte(result))
+	invalid, message := formutil.Validate(reqs, r)
+
+	if invalid {
+
+		jsonMessage := jsonutil.MapStringToJson(message, w)
+
+		var data = map[string]any{
+			"errors": string(jsonMessage),
+			"oldInput": map[string]string{
+				"email": reqs.Email,
+			},
+		}
+
+		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)
+
+		return
+	}
+
+	result, err := userModel.GetUserDataWithEmail(reqs.Email, userModel.UserColumn.Email, userModel.UserColumn.Password)
+
+	if err != nil {
+
+		c, errCookie := r.Cookie("session_token")
+
+		if errCookie != nil {
+
+			sessions.SetSession(sessions.Session{
+				ErrorMessages: []string{
+					"Invalid Session",
+				},
+			}, w)
+
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+
+		val, err := sessions.GetSession(c.Value)
+
+		if err != nil {
+			sessions.SetSession(sessions.Session{
+				ErrorMessages: []string{
+					"Invalid Session",
+				},
+			}, w)
+
+			// mengatur kode http itu sangat penting agar tidak terjadi error
+			// kalau kita mau redirect kan lagi ke page itu sendiri kita pakai
+			// http.statusfound
+			// misal, kita lakuin action post ke /, lalu kita ingin ngeredirect kalau gagal
+			// itu ke / lagi, tapi method get, kita pakai http.statusfound, jangan http.statusseeother
+			// karna itu akan error, saya mengalaminya sendiri xD.
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+
+		val.ErrorMessages = []string{
+			"User tidak ditemukan",
+		}
+
+		sessions.UpdateSession(c.Value, val)
+
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	fmt.Println(result.Email)
+
+	// c, err := r.Cookie("session_token")
+
+	// if err != nil {
+	// 	sessions.SetSession(sessions.Session{}, w)
+
+	// 	viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
+	// 	return
+	// }
+
+	// // val, err := sessions.GetSession(c.Value)
+
+	// // val.Username = ""
+
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
-	var reqs = entities.User{
+	var reqs = entities.UserRegister{
 		NamaLengkap: r.FormValue("nama_lengkap"),
 		Email:       r.FormValue("email"),
 		Password:    r.FormValue("password"),

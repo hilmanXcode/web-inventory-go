@@ -2,6 +2,7 @@ package sessions
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -60,6 +61,8 @@ func GetSession(key string) (Session, error) {
 	defer mu.RUnlock()
 
 	val, exists := sessionData[key]
+
+	fmt.Printf("SESSION GLOBAL: %v\n\n", key)
 
 	if !exists {
 		return Session{}, errors.New("Session tidak ditemukan")
