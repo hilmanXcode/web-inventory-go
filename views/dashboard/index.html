@@ -1,11 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard nya</title>
-</head>
-<body>
-    <h1>HELLO WORLD, ini adalah dashboard</h1>
-</body>
-</html>
+{{ define "_content" }}
+<h2 class="page-title">Ringkasan Hari Ini</h2>
+
+<!-- CARD STATISTIK -->
+<div class="cards-grid">
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Total Barang</h3>
+            <h2>1,248</h2>
+        </div>
+        <div class="stat-icon icon-blue">
+            <i class='bx bx-package'></i>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Barang Masuk (Bulan Ini)</h3>
+            <h2>340</h2>
+        </div>
+        <div class="stat-icon icon-green">
+            <i class='bx bx-down-arrow-alt'></i>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Barang Keluar (Bulan Ini)</h3>
+            <h2>124</h2>
+        </div>
+        <div class="stat-icon icon-orange">
+            <i class='bx bx-up-arrow-alt'></i>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Stok Menipis</h3>
+            <h2>12</h2>
+        </div>
+        <div class="stat-icon icon-red">
+            <i class='bx bx-error'></i>
+        </div>
+    </div>
+</div>
+
+<!-- TABEL TRANSAKSI TERBARU -->
+<div class="table-container">
+    <div class="table-header">
+        <h3>Aktivitas Terbaru</h3>
+        <button style="padding: 8px 16px; background-color: var(--primary-blue); color: white; border: none; border-radius: 6px; cursor: pointer;">Lihat Semua</button>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Kode TRX</th>
+                <th>Nama Barang</th>
+                <th>Jenis</th>
+                <th>Jumlah</th>
+                <th>Tanggal</th>
+                <th>Admin</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>TRX-001</td>
+                <td>Laptop ASUS ROG</td>
+                <td><span class="badge masuk">Masuk</span></td>
+                <td>+5 Unit</td>
+                <td>22 Okt 2026</td>
+                <td>Budi</td>
+            </tr>
+            <tr>
+                <td>TRX-002</td>
+                <td>Keyboard Mechanical</td>
+                <td><span class="badge keluar">Keluar</span></td>
+                <td>-2 Unit</td>
+                <td>22 Okt 2026</td>
+                <td>Siti</td>
+            </tr>
+            <tr>
+                <td>TRX-003</td>
+                <td>Monitor Samsung 24"</td>
+                <td><span class="badge masuk">Masuk</span></td>
+                <td>+10 Unit</td>
+                <td>21 Okt 2026</td>
+                <td>Budi</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{{ end }}

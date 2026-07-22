@@ -1,0 +1,63 @@
+{{ define "_content" }}
+
+    <div class="table-header" style="margin-bottom: 24px;">
+        <h2 class="page-title" style="margin-bottom: 0;">Catat Barang Masuk</h2>
+        <!-- Jika untuk Barang Keluar, ganti judul dan warna tombol menjadi btn-danger -->
+        <button class="btn-sm btn-primary" onclick="openModal('modalTransaksi')">+ Catat Barang Masuk</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Kode Transaksi</th>
+                    <th>Nama Barang</th>
+                    <th>Jumlah</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>22 Okt 2026</td>
+                    <td>TRX-IN-001</td>
+                    <td>Laptop ASUS ROG</td>
+                    <td><span class="badge masuk">+ 5 Unit</span></td>
+                    <td>Restock dari Supplier A</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="modal-overlay" id="modalTransaksi">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Form Barang Masuk</h3>
+                <button class="close-modal" onclick="closeModal('modalTransaksi')">&times;</button>
+            </div>
+            <form action="/transaksi/masuk" method="POST">
+                <div class="form-group">
+                    <label>Pilih Barang</label>
+                    <!-- Di dunia nyata, ini diisi dari database -->
+                    <select class="form-control" name="barang_id" required>
+                        <option value="1">Laptop ASUS ROG (Stok: 24)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Masuk</label>
+                    <input type="number" min="1" class="form-control" name="qty" required>
+                </div>
+                <div class="form-group">
+                    <label>Keterangan / Catatan</label>
+                    <input type="text" class="form-control" name="keterangan" placeholder="Opsional">
+                </div>
+                <div class="form-group" style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn-sm btn-outline" onclick="closeModal('modalTransaksi')">Batal</button>
+                    <button type="submit" class="btn-sm btn-primary">Simpan Transaksi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{{ end }}

@@ -1,0 +1,63 @@
+{{ define "_content" }}
+
+    <h2 class="page-title">Laporan Pergerakan Stok</h2>
+
+    <!-- Filter Section -->
+    <div class="table-container" style="margin-bottom: 20px;">
+        <form action="/laporan" method="GET" style="display: flex; gap: 15px; align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                <label>Dari Tanggal</label>
+                <input type="date" class="form-control" name="start_date">
+            </div>
+            <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                <label>Sampai Tanggal</label>
+                <input type="date" class="form-control" name="end_date">
+            </div>
+            <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                <label>Jenis Transaksi</label>
+                <select class="form-control" name="type">
+                    <option value="all">Semua Transaksi</option>
+                    <option value="in">Barang Masuk</option>
+                    <option value="out">Barang Keluar</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn-sm btn-primary">Filter Data</button>
+                <!-- Tombol print bisa menggunakan window.print() di JS -->
+                <button type="button" class="btn-sm btn-outline" onclick="window.print()">Cetak PDF</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Hasil Laporan -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Tipe</th>
+                    <th>Nama Barang</th>
+                    <th>Qty</th>
+                    <th>Stok Akhir</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>22 Okt 2026</td>
+                    <td><span class="badge masuk">Masuk</span></td>
+                    <td>Laptop ASUS ROG</td>
+                    <td>5</td>
+                    <td>24</td>
+                </tr>
+                <tr>
+                    <td>22 Okt 2026</td>
+                    <td><span class="badge keluar">Keluar</span></td>
+                    <td>Keyboard Mechanical</td>
+                    <td>2</td>
+                    <td>10</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+{{ end }}

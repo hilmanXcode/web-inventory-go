@@ -29,7 +29,7 @@ func (s Session) IsExpired() bool {
 
 func SetSession(s Session, w http.ResponseWriter) string {
 	sessionToken := uuid.NewString()
-	expiresAt := time.Now().Add(120 * time.Second)
+	expiresAt := time.Now().Add(12 * time.Hour)
 
 	mu.Lock()
 	sessionData[sessionToken] = Session{

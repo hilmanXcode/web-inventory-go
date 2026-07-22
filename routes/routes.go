@@ -1,10 +1,12 @@
 package routes
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/hilmanxcode/web-inventory-go/handlers"
 	"github.com/hilmanxcode/web-inventory-go/middleware"
+	"github.com/hilmanxcode/web-inventory-go/sessions"
 )
 
 func SetupRouter() *http.ServeMux {
@@ -29,6 +31,83 @@ func SetupRouter() *http.ServeMux {
 
 	// Dashboard Route
 	mux.HandleFunc("GET /dashboard", middleware.RequireAuth(handlers.DashboardPage))
+	mux.HandleFunc("GET /dashboard/master_barang", middleware.RequireAuth(handlers.MasterBarang))
+	mux.HandleFunc("GET /dashboard/barang_masuk", middleware.RequireAuth(handlers.BarangMasuk))
+	mux.HandleFunc("GET /dashboard/barang_keluar", middleware.RequireAuth(handlers.BarangKeluar))
+	mux.HandleFunc("GET /dashboard/laporan_stok", middleware.RequireAuth(handlers.LaporanStok))
+
+	mux.HandleFunc("GET /setCookie", func(w http.ResponseWriter, r *http.Request) {
+
+		c, err := r.Cookie("session_token")
+
+		if err != nil {
+			sessions.SetSession(sessions.Session{
+				Username: "hilmanxcode",
+			}, w)
+
+			w.Write([]byte("Berhasil menginisialisasi cookie"))
+
+			return
+		}
+
+		val, err := sessions.GetSession(c.Value)
+
+		if err != nil {
+			log.Fatal("The cookie must be set before get session")
+			return
+		}
+
+		val.Username = "hilmanxcode"
+
+		sessions.UpdateSession(c.Value, val)
+
+		w.Write([]byte("Berhasil menset cookie"))
+	})
+
+	mux.HandleFunc("GET /myCookie", func(w http.ResponseWriter, r *http.Request) {
+
+		c, err := r.Cookie("session_token")
+
+		if err != nil {
+
+			if err == http.ErrNoCookie {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		username, err := sessions.GetUsernameSession(c.Value, w)
+
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		w.Write([]byte("Halo " + username + ", cookie name: " + c.Name))
+	})
+
+	mux.HandleFunc("GET /clearCookie", func(w http.ResponseWriter, r *http.Request) {
+		c, err := r.Cookie("session_token")
+
+		if err != nil {
+
+			if err == http.ErrNoCookie {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		sessions.ClearSession(c.Value, w)
+
+		w.Write([]byte("Berhasil mendelete sebuah cookie"))
+	})
 
 	return mux
 
