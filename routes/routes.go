@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/hilmanxcode/web-inventory-go/handlers"
@@ -22,7 +23,7 @@ func SetupRouter() *http.ServeMux {
 
 	/* Auth Route */
 	// Login Route
-	mux.HandleFunc("GET /", handlers.LoginPage)
+	mux.HandleFunc("GET /", middleware.GuestOnly(handlers.LoginPage))
 	mux.HandleFunc("POST /", handlers.LoginHandler)
 
 	// Register Route
@@ -32,9 +33,29 @@ func SetupRouter() *http.ServeMux {
 	mux.HandleFunc("GET /dashboard", middleware.RequireAuth(handlers.DashboardPage))
 
 	mux.HandleFunc("GET /setCookie", func(w http.ResponseWriter, r *http.Request) {
-		sessions.SetSession(sessions.Session{
-			Username: "hilmanxcode",
-		}, w)
+
+		c, err := r.Cookie("session_token")
+
+		if err != nil {
+			sessions.SetSession(sessions.Session{
+				Username: "hilmanxcode",
+			}, w)
+
+			w.Write([]byte("Berhasil menginisialisasi cookie"))
+
+			return
+		}
+
+		val, err := sessions.GetSession(c.Value)
+
+		if err != nil {
+			log.Fatal("The cookie must be set before get session")
+			return
+		}
+
+		val.Username = "hilmanxcode"
+
+		sessions.UpdateSession(c.Value, val)
 
 		w.Write([]byte("Berhasil menset cookie"))
 	})

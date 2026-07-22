@@ -104,11 +104,11 @@ func UpdateSession(key string, s Session) error {
 	return nil
 }
 
-func GetAndClearFlash(r *http.Request) (string, []string, bool) {
+func GetAndClearFlash(r *http.Request) (string, []string, error) {
 	cookie, err := r.Cookie("session_token")
 
 	if err != nil {
-		return "", nil, false
+		return "", nil, err
 	}
 
 	mu.Lock()
@@ -117,7 +117,7 @@ func GetAndClearFlash(r *http.Request) (string, []string, bool) {
 	val, exists := sessionData[cookie.Value]
 
 	if !exists {
-		return "", nil, true
+		return "", nil, err
 	}
 
 	success := val.SuccessMessage
@@ -127,7 +127,7 @@ func GetAndClearFlash(r *http.Request) (string, []string, bool) {
 	val.ErrorMessages = nil
 	sessionData[cookie.Value] = val
 
-	return success, errors, true
+	return success, errors, nil
 
 }
 

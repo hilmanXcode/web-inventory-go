@@ -14,9 +14,6 @@
 <body>
 
     <div class="container" id="container">
-        {{ if .errorMsgs }}
-            <h1>{{ .errorMsgs }}</h1>
-        {{ end }}
         <!-- FORM REGISTER (Di Kiri) -->
         <div class="form-container form-register">
             <form action="/register" method="POST" id="form1">
@@ -82,6 +79,7 @@
     </div>
 
     <div id="error-data" data-errors="{{ .errors }}"></div>
+    <div id="errors" data-errors="{{ .errorMsgs }}"></div>
 
     <script src="/assets/js/login.js"></script>
     <script src="/assets/js/toast.js"></script>
@@ -94,6 +92,20 @@
         for(const [key, value] of Object.entries(errors)){
             toast.error('Gagal', value)
         }
+    </script>
+
+    {{ end }}
+
+    {{ if .errorMsgs }}
+    
+    <script>
+        const dataErr = document.getElementById("errors").dataset.errors
+        const result = dataErr
+            .replace(/[\[\]]/g, '') // 1. Hapus '[' dan ']' -> "Kamu Belum Login, TESTING"
+            .split(',')              // 2. Pisahkan berdasarkan koma -> ["Kamu Belum Login", " TESTING"]
+            .map(item => item.trim()); // 3. Hapus spasi di awal/akhir tiap elemen
+
+        result.map(item => toast.error('Error', item))
     </script>
 
     {{ end }}
