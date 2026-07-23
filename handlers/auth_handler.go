@@ -90,9 +90,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := userModel.GetUserDataWithEmail(reqs.Email, userModel.UserColumn.Email, userModel.UserColumn.Password)
 
+	c, errCookie := r.Cookie("session_token")
+	// Kalau user nya gak ada / session invalid
 	if err != nil {
-
-		c, errCookie := r.Cookie("session_token")
 
 		if errCookie != nil {
 
@@ -136,6 +136,41 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(result.Email)
+
+	err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(reqs.Password))
+
+	if err != nil {
+		val, err := sessions.GetSession(c.Value)
+
+		if err != nil {
+			sessions.SetSession(sessions.Session{
+				ErrorMessages: []string{
+					"Invalid Session",
+				},
+			}, w)
+
+			// mengatur kode http itu sangat penting agar tidak terjadi error
+			// kalau kita mau redirect kan lagi ke page itu sendiri kita pakai
+			// http.statusfound
+			// misal, kita lakuin action post ke /, lalu kita ingin ngeredirect kalau gagal
+			// itu ke / lagi, tapi method get, kita pakai http.statusfound, jangan http.statusseeother
+			// karna itu akan error, saya mengalaminya sendiri xD.
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+
+		val.ErrorMessages = []string{
+			"Password salah",
+		}
+
+		sessions.UpdateSession(c.Value, val)
+
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+
+	} else {
+		w.Write([]byte("Password benar"))
+	}
 
 	// c, err := r.Cookie("session_token")
 
