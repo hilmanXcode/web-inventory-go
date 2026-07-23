@@ -2,7 +2,6 @@ package sessions
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -22,6 +21,7 @@ type Session struct {
 	CurrentPage    string
 	ErrorMessages  []string
 	Expiry         time.Time
+	OldInput       map[string]string
 }
 
 func (s Session) IsExpired() bool {
@@ -61,8 +61,6 @@ func GetSession(key string) (Session, error) {
 	defer mu.RUnlock()
 
 	val, exists := sessionData[key]
-
-	fmt.Printf("SESSION GLOBAL: %v\n\n", key)
 
 	if !exists {
 		return Session{}, errors.New("Session tidak ditemukan")
@@ -105,6 +103,30 @@ func UpdateSession(key string, s Session) error {
 	sessionData[key] = s
 
 	return nil
+}
+
+func GetAndClearOldInput(r *http.Request) (map[string]string, error) {
+	cookie, err := r.Cookie("session_token")
+
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	val, exists := sessionData[cookie.Value]
+
+	if !exists {
+		return map[string]string{}, err
+	}
+
+	oldInput := val.OldInput
+
+	val.OldInput = nil
+	sessionData[cookie.Value] = val
+
+	return oldInput, nil
 }
 
 func GetAndClearFlash(r *http.Request) (string, []string, error) {
