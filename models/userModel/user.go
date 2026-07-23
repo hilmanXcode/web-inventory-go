@@ -1,4 +1,4 @@
-package userModel
+package usermodel
 
 import (
 	"fmt"
@@ -22,11 +22,6 @@ var UserColumn = users{
 	Password:    "password",
 	Role:        "role",
 }
-
-// type UserLoginData struct {
-// 	email    string
-// 	password string
-// }
 
 func GetUserDataWithEmail(email string, columns ...string) (users, error) {
 

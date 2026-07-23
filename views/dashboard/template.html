@@ -11,6 +11,7 @@
     <!-- Boxicons (Library Icon yang ringan dan modern) -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="/assets/css/dashboard.css">
+    <link rel="stylesheet" href="/assets/css/toast.css">
  
 </head>
 <body>
@@ -99,10 +100,13 @@
         </ul>
 
         <div class="sidebar-footer">
-            <a href="#" class="menu-link" style="padding:0; color: #ef4444;" id="btnLogout">
-                <i class='bx bx-log-out'></i>
-                <span>Logout</span>
-            </a>
+            <form method="post" action="/logout">
+                <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
+                <button type="submit" class="menu-link" style="padding: 5px; background: none; border: none; cursor: pointer; width: 100%; color: #ef4444;" id="btnLogout">
+                    <i class='bx bx-log-out'></i>
+                    <span style="text-align: start;">Logout</span>
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -125,11 +129,26 @@
 
         <!-- DASHBOARD CONTENT -->
         <div class="content">
-            {{ template "_content" }}
+            {{ template "_content" . }}
         </div>
     </main>
 
+    <div id="error-data" data-errors="{{ .errors }}"></div>
+
     <!-- JAVASCRIPT UNTUK INTERAKTIVITAS -->
     <script src="/assets/js/dashboard.js"></script>
+    <script src="/assets/js/toast.js"></script>
+
+
+    {{ if .errors }}
+        <script>
+            const data = document.getElementById("error-data")
+            const errors = JSON.parse(data.dataset.errors)
+
+            for(const [key, value] of Object.entries(errors)){
+                toast.error('Gagal', value)
+            }
+        </script>
+    {{ end }}
 </body>
 </html>

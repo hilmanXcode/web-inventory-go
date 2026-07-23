@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -54,9 +55,9 @@ func Validate(reqs any, r *http.Request) (bool, map[string]string) {
 			if strings.TrimSpace(valueString) == "" {
 				validatorMessage[val.inputName] = fmt.Sprintf("Field %s tidak boleh kosong", val.inputName)
 			} else if strings.Contains(val.validator, "number") {
-				var valueInt = val.fieldvalue.(int)
+				_, err := strconv.Atoi(val.fieldvalue.(string))
 
-				if valueInt == 0 {
+				if err != nil {
 					validatorMessage[val.inputName] = fmt.Sprintf("Field %s tidak boleh berisi angka 0", val.inputName)
 				}
 

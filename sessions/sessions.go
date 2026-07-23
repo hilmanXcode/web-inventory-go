@@ -30,6 +30,7 @@ func (s Session) IsExpired() bool {
 }
 
 func SetSession(s Session, w http.ResponseWriter) string {
+
 	sessionToken := uuid.NewString()
 	expiresAt := time.Now().Add(12 * time.Hour)
 
@@ -189,9 +190,10 @@ func GetCSRFToken(w http.ResponseWriter, r *http.Request) string {
 
 	c, err := r.Cookie("session_token")
 
-	if err != nil {
+	if err == nil {
 		mu.RLock()
 		val, exists := sessionData[c.Value]
+		mu.RUnlock()
 
 		if exists && !val.IsExpired() {
 

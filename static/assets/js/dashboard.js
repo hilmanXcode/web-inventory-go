@@ -36,12 +36,12 @@ link.addEventListener('click', function() {
 });
 
 // 3. Efek Logout sederhana
-document.getElementById('btnLogout').addEventListener('click', function(e) {
-e.preventDefault();
-alert('Anda telah berhasil Logout!');
-// Di implementasi asli, arahkan ke halaman login:
-// window.location.href = '/login'; 
-});
+// document.getElementById('btnLogout').addEventListener('click', function(e) {
+// e.preventDefault();
+// alert('Anda telah berhasil Logout!');
+// // Di implementasi asli, arahkan ke halaman login:
+// // window.location.href = '/login'; 
+// });
 
 // Fungsi untuk membuka modal
 function openModal(modalId) {

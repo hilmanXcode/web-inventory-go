@@ -7,7 +7,7 @@ import (
 	viewsconst "github.com/hilmanxcode/web-inventory-go/const"
 	"github.com/hilmanxcode/web-inventory-go/database"
 	"github.com/hilmanxcode/web-inventory-go/entities"
-	userModel "github.com/hilmanxcode/web-inventory-go/models"
+	usermodel "github.com/hilmanxcode/web-inventory-go/models/userModel"
 	"github.com/hilmanxcode/web-inventory-go/sessions"
 	"github.com/hilmanxcode/web-inventory-go/utils/httputil"
 	"github.com/hilmanxcode/web-inventory-go/utils/jsonutil"
@@ -23,10 +23,10 @@ func AuthUser(w http.ResponseWriter, r *http.Request, reqs entities.UserLogin) {
 		return
 	}
 
-	result, err := userModel.GetUserDataWithEmail(reqs.Email, userModel.UserColumn.Email, userModel.UserColumn.Password)
+	result, err := usermodel.GetUserDataWithEmail(reqs.Email, usermodel.UserColumn.Email, usermodel.UserColumn.Password)
 
 	if err != nil {
-		httputil.RedirectWithError(w, r, "User tidak ditemukan", "/")
+		httputil.RedirectWithError(w, r, "Email atau Password anda salah!", "/")
 		return
 	}
 
@@ -47,7 +47,7 @@ func AuthUser(w http.ResponseWriter, r *http.Request, reqs entities.UserLogin) {
 
 		sessions.UpdateSession(val.Key, val)
 
-		httputil.RedirectWithError(w, r, "Password anda salah", "/")
+		httputil.RedirectWithError(w, r, "Email atau Password anda salah!", "/")
 		return
 	}
 

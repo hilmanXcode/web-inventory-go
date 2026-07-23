@@ -23,7 +23,7 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Cookie ada, cek session dengan value dari cookie
-		username, err := sessions.GetEmailSession(c.Value, w)
+		val, err := sessions.GetSession(c.Value)
 
 		if err != nil {
 			sessions.SetSession(sessions.Session{
@@ -35,7 +35,7 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		if username == "" {
+		if val.Email == "" {
 
 			val, err := sessions.GetSession(c.Value)
 
