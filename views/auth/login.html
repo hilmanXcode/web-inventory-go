@@ -19,6 +19,7 @@
             <form action="/register" method="POST" id="form1">
                 <h2>Buat Akun Baru</h2>
                 <span class="subtitle">Daftarkan staf Anda untuk mengelola inventaris</span>
+                <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
                 <div class="input-group">
                     <input type="text" placeholder="Nama Lengkap" name="nama_lengkap" required
                     value="{{ .oldInput.nama_lengkap }}"
@@ -64,6 +65,7 @@
             <form action="/" method="POST" id="form2">
                 <h2>Masuk Dashboard</h2>
                 <span class="subtitle">Silakan login untuk mengakses data stok barang</span>
+                <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
                 <div class="input-group">
                     <input type="email" placeholder="Email" name="email" value="{{ .oldInput.email }}" required />
                 </div>

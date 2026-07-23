@@ -17,6 +17,12 @@ import (
 )
 
 func AuthUser(w http.ResponseWriter, r *http.Request, reqs entities.UserLogin) {
+
+	if !sessions.VerifyCSRF(r) {
+		httputil.RedirectWithError(w, r, "Invalid CSRF Token", "/")
+		return
+	}
+
 	result, err := userModel.GetUserDataWithEmail(reqs.Email, userModel.UserColumn.Email, userModel.UserColumn.Password)
 
 	if err != nil {
@@ -26,10 +32,11 @@ func AuthUser(w http.ResponseWriter, r *http.Request, reqs entities.UserLogin) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(reqs.Password))
 
-	if err != nil {
-		val, err := sessionutil.GetSessionData(w, r, "/")
+	val, errSession := sessionutil.GetSessionData(w, r, "/")
 
-		if err != nil {
+	if err != nil {
+
+		if errSession != nil {
 			httputil.RedirectWithError(w, r, "Invalid session", "/")
 			return
 		}
@@ -44,10 +51,15 @@ func AuthUser(w http.ResponseWriter, r *http.Request, reqs entities.UserLogin) {
 		return
 	}
 
-	w.Write([]byte("Password benar"))
+	val.Email = result.Email
+
+	sessions.UpdateSession(val.Key, val)
+
+	http.Redirect(w, r, "/dashboard", http.StatusFound)
+
 }
 
-func RegisterUser(w http.ResponseWriter, reqs entities.UserRegister) {
+func RegisterUser(w http.ResponseWriter, r *http.Request, reqs entities.UserRegister) {
 	var errors map[string]string
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(reqs.Password), 10)
@@ -74,9 +86,15 @@ func RegisterUser(w http.ResponseWriter, reqs entities.UserRegister) {
 
 	errorMsgs := jsonutil.MapStringToJson(errors, w)
 
+	csrfToken := sessions.GetCSRFToken(w, r)
+
 	var data = map[string]any{
-		"success": successMsg,
-		"errors":  string(errorMsgs),
+		"success":    successMsg,
+		"errors":     string(errorMsgs),
+		"csrf_token": csrfToken,
+		"oldInput": map[string]string{
+			"nama_lengkap": reqs.NamaLengkap,
+		},
 	}
 
 	viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)

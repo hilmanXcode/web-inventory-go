@@ -16,12 +16,13 @@ var (
 
 type Session struct {
 	Key            string
-	Username       string
+	Email          string
 	SuccessMessage string
 	CurrentPage    string
 	ErrorMessages  []string
 	Expiry         time.Time
 	OldInput       map[string]string
+	CSRFToken      string
 }
 
 func (s Session) IsExpired() bool {
@@ -35,10 +36,11 @@ func SetSession(s Session, w http.ResponseWriter) string {
 	mu.Lock()
 	sessionData[sessionToken] = Session{
 		Key:            sessionToken,
-		Username:       s.Username,
+		Email:          s.Email,
 		SuccessMessage: s.SuccessMessage,
 		ErrorMessages:  s.ErrorMessages,
 		Expiry:         expiresAt,
+		CSRFToken:      s.CSRFToken,
 	}
 	mu.Unlock()
 
@@ -69,7 +71,7 @@ func GetSession(key string) (Session, error) {
 	return val, nil
 }
 
-func GetUsernameSession(cookieToken string, w http.ResponseWriter) (string, error) {
+func GetEmailSession(cookieToken string, w http.ResponseWriter) (string, error) {
 	mu.RLock()
 	val, exists := sessionData[cookieToken]
 	mu.RUnlock()
@@ -83,7 +85,7 @@ func GetUsernameSession(cookieToken string, w http.ResponseWriter) (string, erro
 		return "", errors.New("Session sudah expire")
 	}
 
-	return val.Username, nil
+	return val.Email, nil
 
 }
 
@@ -181,4 +183,48 @@ func ClearSession(cookie string, w http.ResponseWriter) {
 		MaxAge: -1,
 	})
 
+}
+
+func GetCSRFToken(w http.ResponseWriter, r *http.Request) string {
+
+	c, err := r.Cookie("session_token")
+
+	if err != nil {
+		mu.RLock()
+		val, exists := sessionData[c.Value]
+
+		if exists && !val.IsExpired() {
+
+			if val.CSRFToken == "" {
+				val.CSRFToken = uuid.NewString()
+				UpdateSession(c.Value, val)
+			}
+			return val.CSRFToken
+		}
+	}
+
+	newToken := uuid.NewString()
+	SetSession(Session{CSRFToken: newToken}, w)
+
+	return newToken
+
+}
+
+func VerifyCSRF(r *http.Request) bool {
+	c, err := r.Cookie("session_token")
+
+	if err != nil {
+		return false
+	}
+
+	mu.RLock()
+	val, exists := sessionData[c.Value]
+	mu.RUnlock()
+
+	if !exists || val.IsExpired() {
+		return false
+	}
+
+	tokenFromPost := r.FormValue("csrf_token")
+	return tokenFromPost == val.CSRFToken && tokenFromPost != ""
 }

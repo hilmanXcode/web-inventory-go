@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/google/uuid"
 	viewsconst "github.com/hilmanxcode/web-inventory-go/const"
 	"github.com/hilmanxcode/web-inventory-go/entities"
 	userServices "github.com/hilmanxcode/web-inventory-go/services"
@@ -16,53 +14,26 @@ import (
 
 func LoginPage(w http.ResponseWriter, r *http.Request) {
 
-	c, err := r.Cookie("session_token")
+	csrfToken := sessions.GetCSRFToken(w, r)
 
-	if err != nil {
-		sessions.SetSession(sessions.Session{
-			Key: uuid.NewString(),
-		}, w)
-		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
-		return
-	} else {
-
-		successMsg, errorMsgs, err := sessions.GetAndClearFlash(r)
-
-		_, err = sessions.GetSession(c.Value)
-
-		if err != nil {
-
-			sessions.SetSession(sessions.Session{
-				Key: uuid.NewString(),
-			}, w)
-
-		}
-
-		if err != nil {
-			sessions.ClearSession(c.Value, w)
-			sessions.SetSession(sessions.Session{
-				Key: uuid.NewString(),
-			}, w)
-			viewsutil.ShowView(viewsconst.VIEWS_LOGIN, nil, w)
-			return
-		}
-
-		oldInput, err := sessions.GetAndClearOldInput(r)
-
-		if err != nil {
-			log.Fatal("harusnya sudah ada session dari sini")
-		}
-
-		var data = map[string]any{
-			"errorMsgs":  errorMsgs,
-			"successMsg": successMsg,
-			"oldInput":   oldInput,
-		}
-
-		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)
-
+	data := map[string]any{
+		"csrf_token": csrfToken,
 	}
 
+	successMsg, errorMsgs, _ := sessions.GetAndClearFlash(r)
+	oldInput, _ := sessions.GetAndClearOldInput(r)
+
+	if successMsg != "" {
+		data["successMsg"] = successMsg
+	}
+	if len(errorMsgs) > 0 {
+		data["errorMsgs"] = errorMsgs
+	}
+	if oldInput != nil {
+		data["oldInput"] = oldInput
+	}
+
+	viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,6 +47,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if invalid {
 
+		csrfToken := sessions.GetCSRFToken(w, r)
+
 		jsonMessage := jsonutil.MapStringToJson(message, w)
 
 		var data = map[string]any{
@@ -83,6 +56,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			"oldInput": map[string]string{
 				"email": reqs.Email,
 			},
+			"csrf_token": csrfToken,
 		}
 
 		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)
@@ -107,6 +81,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	if invalid {
 
+		csrfToken := sessions.GetCSRFToken(w, r)
+
 		jsonMessage := jsonutil.MapStringToJson(message, w)
 
 		var data = map[string]any{
@@ -116,6 +92,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 				"nama_lengkap": reqs.NamaLengkap,
 				"email":        reqs.Email,
 			},
+			"csrf_token": csrfToken,
 		}
 
 		viewsutil.ShowView(viewsconst.VIEWS_LOGIN, data, w)
@@ -123,6 +100,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userServices.RegisterUser(w, reqs)
+	userServices.RegisterUser(w, r, reqs)
 
 }

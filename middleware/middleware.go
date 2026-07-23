@@ -23,7 +23,7 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Cookie ada, cek session dengan value dari cookie
-		username, err := sessions.GetUsernameSession(c.Value, w)
+		username, err := sessions.GetEmailSession(c.Value, w)
 
 		if err != nil {
 			sessions.SetSession(sessions.Session{
@@ -73,7 +73,7 @@ func GuestOnly(next http.HandlerFunc) http.HandlerFunc {
 
 			val, errSession := sessions.GetSession(c.Value)
 
-			if errSession == nil && val.Username != "" {
+			if errSession == nil && val.Email != "" {
 				val.ErrorMessages = []string{
 					"Kamu sudah login",
 				}

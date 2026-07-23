@@ -21,7 +21,7 @@ func SetupRouter() *http.ServeMux {
 
 	/* Auth Route */
 	// Login Route
-	mux.HandleFunc("GET /", middleware.GuestOnly(handlers.LoginPage))
+	mux.HandleFunc("GET /{$}", handlers.LoginPage)
 	mux.HandleFunc("POST /", middleware.GuestOnly(handlers.LoginHandler))
 
 	// Register Route

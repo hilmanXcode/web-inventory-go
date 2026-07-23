@@ -28,7 +28,7 @@ func GetSessionData(w http.ResponseWriter, r *http.Request, path string) (sessio
 				"Invalid session",
 			},
 		}, w)
-		http.Redirect(w, r, path, http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return sessions.Session{}, err
 	}
 
